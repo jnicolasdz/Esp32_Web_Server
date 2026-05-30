@@ -38,11 +38,11 @@ void sendUDP(const void* data, size_t size, uint16_t puerto, IPAddress dest) {
     udp.endPacket();
 }
 
-void sendTCP(String mensaje, IPAddress dest, uint16_t puerto) {
+void sendTCP(String mensaje, IPAddress dest, uint16_t puerto, String ruta = "/") {
 
   WiFiClient client;
   if (client.connect(dest, puerto)) {
-    client.println("POST / HTTP/1.1");
+    client.println("POST " + ruta + " HTTP/1.1"); 
     client.println("Host: " + String(dest));
     client.println("Content-Length: " + String(mensaje.length()));
     client.println("Connection: close");
