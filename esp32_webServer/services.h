@@ -8,6 +8,14 @@
 #include <WiFiUdp.h>
 #include <WebServer.h>
 
+void stringToMac(const String& mac, byte* macAddress) {
+  int index = 0;
+  for (int i = 0; i < 6; i++) {
+    macAddress[i] = strtoul(mac.c_str() + index, nullptr, 16);
+    index += 3; 
+  }
+}
+
 void createMagicPacket(uint8_t* magicPacket, const byte* macAddress) {
 
   int index = 0;
