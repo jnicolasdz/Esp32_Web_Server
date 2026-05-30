@@ -8,9 +8,8 @@
 const char* ssid = "Hidden_Network";
 const char* password = "pass12345";
 
-const IPAddress dest = IPAddress(192, 168, 4, 2);
+const IPAddress broadcast = IPAddress(192, 168, 4, 255);
 const int puerto = 8080;
-const byte macAddress[6] = {0x52,0x17,0x8A,0x22,0x81,0x8D};
 
 WebServer server(80);
 
@@ -42,19 +41,15 @@ void getMagicPacket() {
 
   byte magicPacket[102];
 
-    if (!server.hasArg("mp")) {
+  if (!server.hasArg("mp")) {
     server.send(400, "text/plain", "Missing MAC address : ?mp=<MAC Address>");
     return;
   }
 
+  byte macAddress[6]; 
   String mac = server.arg("mp");
-  byte macAddress[6];
-  int index = 0;
-  for (int i = 0; i < 6; i++) {
-    macAddress[i] = strtoul(mac.c_str() + index, nullptr, 16);
-    index += 3; // saltar "XX:"
-  }
-  
+  stringToMac(mac, macAddress);
+
   createMagicPacket(magicPacket, macAddress);
   String out = "";
   
@@ -68,8 +63,17 @@ void getMagicPacket() {
 void sendMagicPacket() {
 
   byte magicPacket[102];
+
+  if (!server.hasArg("mp")) {
+    server.send(400, "text/plain", "Missing MAC address : ?mp=<MAC Address>");
+    return;
+  }
+  
+  byte macAddress[6]; 
+  String mac = server.arg("mp");
+  stringToMac(mac, macAddress);
   createMagicPacket(magicPacket, macAddress);
-  sendUDP(magicPacket, 102, 7, dest);
+  sendUDP(magicPacket, 102, 7, broadcast);
   server.send(200, "text/plain", "Magic packet sent");
 }
 
@@ -81,6 +85,6 @@ void printMensaje() {
   }
   
   String mensaje = server.arg("msg");
-  sendTCP(mensaje, dest, puerto);
+  sendTCP(mensaje, broadcast, puerto);
   server.send(200, "text/plain", "Printing into client : " + mensaje);
 }
