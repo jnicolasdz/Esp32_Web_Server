@@ -24,8 +24,8 @@ void setup() {
     WiFi.softAP(ssid, password);
 
     // declaración de endpoints
-    server.on("/mp", getMagicPacket);
-    server.on("/sendMP", sendMagicPacket); 
+    server.on("/mp", getMagicPacket); // sample: /mp?mp=52:17:8A:22:81:8D
+    server.on("/sendMP", sendMagicPacket); // sample: /sendMP?mp=52:17:8A:22:81:8D
     server.on("/printf", printMensaje);  // sample: /printf?msg=HolaMundo
 
     server.begin();
@@ -41,6 +41,20 @@ void loop() {
 void getMagicPacket() {
 
   byte magicPacket[102];
+
+    if (!server.hasArg("mp")) {
+    server.send(400, "text/plain", "Missing MAC address : ?mp=<MAC Address>");
+    return;
+  }
+
+  String mac = server.arg("mp");
+  byte macAddress[6];
+  int index = 0;
+  for (int i = 0; i < 6; i++) {
+    macAddress[i] = strtoul(mac.c_str() + index, nullptr, 16);
+    index += 3; // saltar "XX:"
+  }
+  
   createMagicPacket(magicPacket, macAddress);
   String out = "";
   
