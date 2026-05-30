@@ -4,6 +4,7 @@
 #include <Arduino.h>
 
 #include "services.h"
+//TODO: add html page on root (/) to test endpoints 
 
 const char* ssid = "Hidden_Network";
 const char* password = "pass12345";
@@ -25,7 +26,8 @@ void setup() {
     // declaración de endpoints
     server.on("/mp", getMagicPacket); // sample: /mp?mp=52:17:8A:22:81:8D
     server.on("/sendMP", sendMagicPacket); // sample: /sendMP?mp=52:17:8A:22:81:8D
-    server.on("/printf", printMensaje);  // sample: /printf?msg=HolaMundo
+    server.on("/printf", printMensaje);  // sample: /printf?ip=192.168.4.2&msg=HolaMundo
+    server.on("/suspendPC", suspendPC); // sample: /shutdownPC?ip=192.168.4.2
 
     server.begin();
     Serial.println("HTTP server started");
@@ -68,7 +70,7 @@ void sendMagicPacket() {
     server.send(400, "text/plain", "Missing MAC address : ?mp=<MAC Address>");
     return;
   }
-  
+
   byte macAddress[6]; 
   String mac = server.arg("mp");
   stringToMac(mac, macAddress);
@@ -77,14 +79,31 @@ void sendMagicPacket() {
   server.send(200, "text/plain", "Magic packet sent");
 }
 
-void printMensaje() {
+void printMessage() {
 
-  if (!server.hasArg("msg")) {
-    server.send(400, "text/plain", "Missing argument : ?msg=<mensaje>");
+  if (!server.hasArg("msg") || !server.hasArg("ip")) {
+    server.send(400, "text/plain", "Missing argument : ?msg=<menssage> or ip=<ip>");
     return;
   }
   
-  String mensaje = server.arg("msg");
-  sendTCP(mensaje, broadcast, puerto);
-  server.send(200, "text/plain", "Printing into client : " + mensaje);
+  String menssage = server.arg("msg");
+  String ipStr = server.arg("ip");
+  IPAddress ip;
+  ip.fromString(ipStr);
+  sendTCP(menssage, ip, puerto, "/print");
+  server.send(200, "text/plain", ipStr + " : " + menssage);
+}
+
+void suspendPC() {
+
+  if (!server.hasArg("ip")) {
+    server.send(400, "text/plain", "Missing argument : ?ip=<ip>");
+    return;
+  }
+  
+  String ipStr = server.arg("ip");
+  IPAddress ip;
+  ip.fromString(ipStr);
+  sendTCP("", ip, puerto, "/suspend");
+  server.send(200, "text/plain", "Suspend order sent to" + ipStr + " on execution at 1 minute");
 }
