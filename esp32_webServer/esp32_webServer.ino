@@ -4,7 +4,7 @@
 #include <Arduino.h>
 
 #include "services.h"
-//TODO: add html page on root (/) to test endpoints 
+#include "view.h"
 
 const char* ssid = "Hidden_Network";
 const char* password = "pass12345";
@@ -26,8 +26,9 @@ void setup() {
     // declaración de endpoints
     server.on("/mp", getMagicPacket); // sample: /mp?mp=52:17:8A:22:81:8D
     server.on("/sendMP", sendMagicPacket); // sample: /sendMP?mp=52:17:8A:22:81:8D
-    server.on("/printf", printMensaje);  // sample: /printf?ip=192.168.4.2&msg=HolaMundo
+    server.on("/printf", printMessage);  // sample: /printf?ip=192.168.4.2&msg=HolaMundo
     server.on("/suspendPC", suspendPC); // sample: /shutdownPC?ip=192.168.4.2
+    server.on("/", handleRoot);
 
     server.begin();
     Serial.println("HTTP server started");
@@ -106,4 +107,8 @@ void suspendPC() {
   ip.fromString(ipStr);
   sendTCP("", ip, puerto, "/suspend");
   server.send(200, "text/plain", "Suspend order sent to" + ipStr + " on execution at 1 minute");
+}
+
+void handleRoot() {
+  server.send(200, "text/html", INDEX_HTML);
 }
