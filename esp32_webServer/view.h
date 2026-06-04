@@ -233,6 +233,25 @@ const char INDEX_HTML[] PROGMEM = R"rawhtml(<!DOCTYPE html>
 
   <div class="cards">
 
+    <!-- /led -->
+    <div class="card">
+      <div class="card-header">
+        <span class="method-badge">POST</span>
+        <span class="route">/led</span>
+        <span class="desc">Encender o apagar led interno ESP32</span>
+      </div>
+      <div class="fields">
+        <div class="field-wrap">
+          <span class="field-label">on/off</span>
+          <input type="text" id="led1" placeholder="on"/>
+        </div>
+        <button class="btn btn-cyan" onclick="call('/led','led',{state:'led1'},'rr2')">
+          <span class="spinner"></span>Enviar
+        </button>
+      </div>
+      <div class="resp-box" id="rr2"></div>
+    </div>
+
     <!-- /mp -->
     <div class="card">
       <div class="card-header">

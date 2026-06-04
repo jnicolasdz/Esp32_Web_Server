@@ -7,6 +7,7 @@
 #include <WiFi.h>
 #include <WiFiUdp.h>
 #include <WebServer.h>
+#include <Arduino.h>
 
 void stringToMac(const String& mac, byte* macAddress) {
   int index = 0;
@@ -53,5 +54,13 @@ void sendTCP(String mensaje, IPAddress dest, uint16_t puerto, String ruta = "/")
     Serial.println("Connection failed to " + dest.toString());
   }
 }
+
+void led(int pin, bool on) {
+  if (on) digitalWrite(pin, HIGH); 
+  else digitalWrite(pin, LOW); 
+}
+
+
+
 
 #endif 

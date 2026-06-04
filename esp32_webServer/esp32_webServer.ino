@@ -11,11 +11,12 @@ const char* password = "pass12345";
 
 const IPAddress broadcast = IPAddress(192, 168, 4, 255);
 const int puerto = 8080;
+const int LED_PIN = 2;
 
 WebServer server(80);
 
 void setup() {
-
+    pinMode(LED_PIN, OUTPUT);
     // inicialización de comunicación serial
     Serial.begin(115200);
 
@@ -24,6 +25,7 @@ void setup() {
     WiFi.softAP(ssid, password);
 
     // declaración de endpoints
+    server.on("/led", turnLed); // sample: /led?state=on or off
     server.on("/mp", getMagicPacket); // sample: /mp?mp=52:17:8A:22:81:8D
     server.on("/sendMP", sendMagicPacket); // sample: /sendMP?mp=52:17:8A:22:81:8D
     server.on("/printf", printMessage);  // sample: /printf?ip=192.168.4.2&msg=HolaMundo
@@ -111,4 +113,14 @@ void suspendPC() {
 
 void handleRoot() {
   server.send(200, "text/html", INDEX_HTML);
+}
+
+void turnLed() {
+  if(!server.hasArg("state")) {
+    server.send(400, "text/plain", "Missing argument : ?state=on or off");
+    return;
+  }
+  bool state = server.arg("state") == "on";
+  led(LED_PIN, state);
+  server.send(200, "text/plain", "turning on/off led");
 }
